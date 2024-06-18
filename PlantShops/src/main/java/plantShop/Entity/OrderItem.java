@@ -16,11 +16,8 @@ public class OrderItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer orderItemId;
-
     private Integer productId;
-
     private String productName;
-
     private Integer quantities;
     private Date createdDate;
     private Date updateDate;
