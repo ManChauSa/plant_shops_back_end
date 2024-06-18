@@ -18,3 +18,11 @@ VALUES ('Garden Paradise', 'Selling plants', 2, true);
 
 INSERT INTO Product (product_name, description, price, seller_id, inventory_count, status, category_id, product_type, created_date)
 VALUES ('Cactus Flower', 'Cactus Flower desc', 10.99, 1, 50, 'AVAILABLE', 1, 1, '2024-06-01');
+
+-- inser discount
+INSERT INTO discount_and_offer
+(discount_name, description, percent, start_date, end_date, created_date, update_date, code)
+VALUES
+    ('Summer Sale', 'Up to 50% off on summer items', 15.00, '2024-06-01', '2024-06-30', '2024-06-01', '2024-06-01', 'SUMMER50'),
+    ('Back to School Promo', 'Get discounts on school supplies', 20.00, '2024-08-15', '2024-09-15', '2024-08-01', '2024-08-01', 'SCHOOL30'),
+    ('Holiday Special', 'Year-end discounts', 30.00, '2024-11-20', '2024-12-31', '2024-11-01', '2024-11-01', 'HOLIDAY40');

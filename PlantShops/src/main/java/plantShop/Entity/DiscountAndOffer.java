@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -18,12 +19,13 @@ public class DiscountAndOffer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer discountOfferId;
 
+    private String discountName;
     private String description;
     private Double percent;
-    private Date startDate;
-    private Date endDate;
-    private Date createdDate;
-    private Date updateDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
+    private LocalDate createdDate;
+    private LocalDate updateDate;
 
     private String code;
 }
