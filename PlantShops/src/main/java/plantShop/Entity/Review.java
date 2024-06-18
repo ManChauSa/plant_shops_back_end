@@ -25,6 +25,7 @@ public class Review {
     @JoinColumn(name = "userId")
     private User user;
 
+    private Double rating;
     private String reviewText;
 
     private Date reviewDate;
