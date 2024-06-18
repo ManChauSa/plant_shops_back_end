@@ -21,7 +21,7 @@ public class Seller {
     private String sellerDescription;
 
     @ManyToOne
-    @JoinColumn(name = "userId", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     private Boolean isVerified;

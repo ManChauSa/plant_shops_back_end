@@ -25,7 +25,7 @@ public class User {
     private String phone;
     private String firstName;
     private String lastName;
-    private Role role;
+    private String role;
     private Date createdDate;
     private Date updateDate;
 
