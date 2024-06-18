@@ -8,6 +8,7 @@ import plantShop.common.constant.ProductType;
 import plantShop.common.constant.Status;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 @Setter
@@ -27,5 +28,5 @@ public class CreateOrUpdateProductRequest {
     LocalDate createdDate;
     LocalDate updateDate;
     String imageUrl;
-    Integer discountId;
+    List<Integer> discountIds;
 }

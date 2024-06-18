@@ -9,8 +9,11 @@ import plantShop.Entity.dto.product.ProductResponse;
 import plantShop.common.constant.SortType;
 import plantShop.helper.ListMapper;
 import plantShop.repo.CategoryRepo;
+import plantShop.repo.DiscountOfferRepo;
 import plantShop.repo.ProductRepo;
 import plantShop.repo.ReviewRepo;
+import plantShop.service.Interface.CategoryService;
+import plantShop.service.Interface.DiscountOfferService;
 import plantShop.service.Interface.ProductService;
 
 import java.time.LocalDate;
@@ -24,11 +27,10 @@ import java.util.stream.Collectors;
 public class ProductServiceImpl implements ProductService {
     @Autowired
     ProductRepo productRepo;
-    @Autowired
-    CategoryRepo categoryRepo;
-
     ReviewRepo reviewRepo;
 
+    DiscountOfferService discountOfferService;
+    CategoryService categoryService;
     @Autowired
     private ModelMapper modelMapper;
 
@@ -49,25 +51,19 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void addProduct(CreateOrUpdateProductRequest product) {
         Product newProduct = new Product();
-        var category = categoryRepo.findById(product.getCategoryId());
-        if (category.isEmpty()) {
-            throw new IllegalArgumentException("Category not found");
-        }
+        var category = modelMapper.map(categoryService.getCategoryById(product.getCategoryId()), Category.class);
+        if (category == null) throw new IllegalArgumentException("Category not found");
 
-        // get seller current login
         //get current user login
 //        fake data
         var currentUserId = 2;
         var user = new User();
         user.setUserId(currentUserId);
-        var seller = new Seller();
-        seller.setSellerName("Garden Paradise");
-        seller.setSellerId(1);
-        seller.setUser(user);
-        // get discount
-        var discount = new ArrayList<DiscountAndOffer>();
 
-        newProduct.setCategory(category.get());
+        // get discount
+        var discounts = getDiscountOffers(product.getDiscountIds());
+
+        newProduct.setCategory(category);
         newProduct.setPrice(product.getPrice());
         newProduct.setProductName(product.getProductName());
         newProduct.setDescription(product.getDescription());
@@ -77,7 +73,7 @@ public class ProductServiceImpl implements ProductService {
         newProduct.setInventoryCount(product.getInventoryCount());
         newProduct.setStatus(product.getStatus());
         newProduct.setSeller(user);
-        newProduct.setDiscounts(discount);
+        newProduct.setDiscounts(discounts);
         product.setCreatedDate(LocalDate.now());
 
         productRepo.save(newProduct);
@@ -87,17 +83,17 @@ public class ProductServiceImpl implements ProductService {
     public void updateProduct(int productId, CreateOrUpdateProductRequest param) {
         var product = productRepo.findById(productId).get();
         if (product == null) throw new IllegalArgumentException("Product not found");
-        var category = categoryRepo.findById(param.getCategoryId());
-        if (category.isEmpty()) {
-            throw new IllegalArgumentException("Category not found");
-        }
+        var category = modelMapper.map(categoryService.getCategoryById(param.getCategoryId()), Category.class);
+        if (category == null) throw new IllegalArgumentException("Category not found");
+
         // fake data
         var currentUserId = 2;
         var user = new User();
         user.setUserId(currentUserId);
-        // find discount by discount id
-        var discounts = new ArrayList<DiscountAndOffer>();
-        product.setCategory(category.get());
+
+        var discounts = getDiscountOffers(param.getDiscountIds());
+
+        product.setCategory(category);
         product.setPrice(product.getPrice());
         product.setProductName(product.getProductName());
         product.setDescription(product.getDescription());
@@ -175,6 +171,15 @@ public class ProductServiceImpl implements ProductService {
                 .mapToDouble(Review::getRating)
                 .average()
                 .orElse(0.0); // return 0.0 if there are no reviews
+    }
+
+    private List<DiscountAndOffer> getDiscountOffers(List<Integer> discountOfferIds) {
+
+        var discounts = discountOfferService.getAllDiscountOffers()
+                .stream()
+                .filter(dc-> discountOfferIds.contains(dc.getDiscountOfferId()))
+                .collect(Collectors.toList());
+        return  listMapper.mapList(discounts, new DiscountAndOffer());
     }
 }
 
