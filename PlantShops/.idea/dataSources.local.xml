@@ -14,7 +14,9 @@
             <node kind="database" qname="@">
               <node kind="schema" qname="@" />
             </node>
-            <node kind="database" qname="spring-data-waa-lab">
+            <node kind="database">
+              <name qname="plant_shops" />
+              <name qname="spring-data-waa-lab" />
               <node kind="schema" qname="public" />
             </node>
           </node>
