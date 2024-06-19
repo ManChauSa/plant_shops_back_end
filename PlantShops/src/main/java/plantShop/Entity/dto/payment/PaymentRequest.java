@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import plantShop.common.constant.PaymentMethod;
 
-import java.time.LocalDate;
 
 @Getter
 @Setter

@@ -1,6 +1,5 @@
 package plantShop.service.Interface;
 
-import plantShop.Entity.Order;
 import plantShop.Entity.dto.order.CreateOrderRequest;
 import plantShop.Entity.dto.order.OrderResponse;
 import plantShop.common.constant.OrderStatus;

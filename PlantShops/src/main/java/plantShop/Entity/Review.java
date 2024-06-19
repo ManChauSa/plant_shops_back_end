@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 
@@ -28,7 +29,7 @@ public class Review {
     private Double rating;
     private String reviewText;
 
-    private Date reviewDate;
-    private Date createdDate;
-    private Date updateDate;
+    private LocalDate reviewDate;
+    private LocalDate createdDate;
+    private LocalDate updateDate;
 }
