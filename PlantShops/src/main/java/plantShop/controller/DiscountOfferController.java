@@ -17,7 +17,7 @@ public class DiscountOfferController {
     DiscountOfferService discountOfferService;
 
     @GetMapping("/{id}")
-    public DiscountRespone getDiscountOfferById(@PathVariable int id) {
+    public DiscountRespone getDiscountOfferById(@PathVariable("id") int id) {
         return discountOfferService.getDiscountOfferById(id);
     }
 
@@ -25,6 +25,20 @@ public class DiscountOfferController {
     public List<DiscountRespone> getDiscountOffer() {
         return discountOfferService.getAllDiscountOffers();
     }
+
+    @GetMapping("/shop")
+    public List<DiscountRespone> getAllDiscountOffersOfProduct() {
+//        get list discount of product when create product of seller role
+        return discountOfferService.getAllDiscountOffersOfProduct();
+    }
+
+
+    @GetMapping("/{id}/checkout")
+    public DiscountRespone getAllDiscountOffersOfShop(@PathVariable("id") int id, @RequestParam String code) {
+//        get list discount of shop when checkout
+        return discountOfferService.getDiscountOffersOfShop(id,code);
+    }
+
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
     public void createDiscountOffer(@RequestBody CreateOrUpdateDiscountRequest param){
