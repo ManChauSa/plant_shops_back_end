@@ -24,6 +24,11 @@ public class DiscountAndOffer {
     private LocalDate endDate;
     private LocalDate createdDate;
     private LocalDate updateDate;
+    private Short discountType;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User seller;
 
     private String code;
 }

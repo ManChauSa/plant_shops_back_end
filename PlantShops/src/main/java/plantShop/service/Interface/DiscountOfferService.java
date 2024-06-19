@@ -8,6 +8,9 @@ import java.util.List;
 public interface DiscountOfferService {
 
     DiscountRespone getDiscountOfferById(int id);
+    List<DiscountRespone> getAllDiscountOffersOfProduct();
+
+    DiscountRespone getDiscountOffersOfShop(int shopId,String code);
     List<DiscountRespone> getAllDiscountOffers();
 
     void saveDiscountOffer(CreateOrUpdateDiscountRequest discountOffer);

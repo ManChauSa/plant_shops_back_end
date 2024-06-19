@@ -15,6 +15,7 @@ public class CreateOrUpdateDiscountRequest {
     String discountName;
     String description;
     Double percent;
+    Short discountType;
     LocalDate startDate;
     LocalDate endDate;
     LocalDate createdDate;

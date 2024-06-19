@@ -21,6 +21,7 @@ public class DiscountRespone {
      LocalDate endDate;
      LocalDate createdDate;
      LocalDate updateDate;
+     Short discountType;
 
     private String code;
 }

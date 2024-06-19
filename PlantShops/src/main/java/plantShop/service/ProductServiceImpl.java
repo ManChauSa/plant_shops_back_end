@@ -23,7 +23,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static plantShop.common.constant.PlantShopConstants.currentUserId;
+import static plantShop.common.constant.PlantShopConstants.*;
 
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -38,6 +38,8 @@ public class ProductServiceImpl implements ProductService {
 
     @Autowired
     private ListMapper listMapper;
+    @Autowired
+    private DiscountOfferRepo discountOfferRepo;
 
 
     @Override
@@ -58,7 +60,7 @@ public class ProductServiceImpl implements ProductService {
 
         /// Todo get current user login
         User currentUser = new User();
-        currentUser.setUserId(currentUserId);
+        currentUser.setUserId(currentSellerId);
 
         // get discount
         var discounts = getDiscountOffers(product.getDiscountIds());
@@ -88,7 +90,7 @@ public class ProductServiceImpl implements ProductService {
 
         // Todo get current user login
         User currentUser = new User();
-        currentUser.setUserId(currentUserId);
+        currentUser.setUserId(currentSellerId);
 
         var discounts = getDiscountOffers(param.getDiscountIds());
 
@@ -174,9 +176,9 @@ public class ProductServiceImpl implements ProductService {
 
     private List<DiscountAndOffer> getDiscountOffers(List<Integer> discountOfferIds) {
 
-        var discounts = discountOfferService.getAllDiscountOffers()
+        var discounts = discountOfferRepo.findAll()
                 .stream()
-                .filter(dc-> discountOfferIds.contains(dc.getDiscountOfferId()))
+                .filter(dc-> dc.getDiscountType() == discountOfProduct && discountOfferIds.contains(dc.getDiscountOfferId()))
                 .collect(Collectors.toList());
         if (discounts.isEmpty()) {return new ArrayList<DiscountAndOffer>();}
         return  listMapper.mapList(discounts, new DiscountAndOffer());
