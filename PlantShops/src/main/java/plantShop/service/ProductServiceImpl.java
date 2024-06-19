@@ -23,6 +23,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static plantShop.common.constant.PlantShopConstants.currentUserId;
+
 @Service
 public class ProductServiceImpl implements ProductService {
     @Autowired
@@ -54,11 +56,9 @@ public class ProductServiceImpl implements ProductService {
         var category = modelMapper.map(categoryService.getCategoryById(product.getCategoryId()), Category.class);
         if (category == null) throw new IllegalArgumentException("Category not found");
 
-        //get current user login
-//        fake data
-        var currentUserId = 2;
-        var user = new User();
-        user.setUserId(currentUserId);
+        /// Todo get current user login
+        User currentUser = new User();
+        currentUser.setUserId(currentUserId);
 
         // get discount
         var discounts = getDiscountOffers(product.getDiscountIds());
@@ -72,7 +72,7 @@ public class ProductServiceImpl implements ProductService {
         newProduct.setImageUrl(product.getImageUrl());
         newProduct.setInventoryCount(product.getInventoryCount());
         newProduct.setStatus(product.getStatus());
-        newProduct.setSeller(user);
+        newProduct.setSeller(currentUser);
         newProduct.setDiscounts(discounts);
         product.setCreatedDate(LocalDate.now());
 
@@ -86,10 +86,9 @@ public class ProductServiceImpl implements ProductService {
         var category = modelMapper.map(categoryService.getCategoryById(param.getCategoryId()), Category.class);
         if (category == null) throw new IllegalArgumentException("Category not found");
 
-        // fake data
-        var currentUserId = 2;
-        var user = new User();
-        user.setUserId(currentUserId);
+        // Todo get current user login
+        User currentUser = new User();
+        currentUser.setUserId(currentUserId);
 
         var discounts = getDiscountOffers(param.getDiscountIds());
 
@@ -102,7 +101,7 @@ public class ProductServiceImpl implements ProductService {
         product.setImageUrl(product.getImageUrl());
         product.setInventoryCount(product.getInventoryCount());
         product.setStatus(product.getStatus());
-        product.setSeller(user);
+        product.setSeller(currentUser);
         product.setDiscounts(discounts);
         product.setUpdateDate(LocalDate.now());
 
@@ -179,6 +178,7 @@ public class ProductServiceImpl implements ProductService {
                 .stream()
                 .filter(dc-> discountOfferIds.contains(dc.getDiscountOfferId()))
                 .collect(Collectors.toList());
+        if (discounts.isEmpty()) {return new ArrayList<DiscountAndOffer>();}
         return  listMapper.mapList(discounts, new DiscountAndOffer());
     }
 }

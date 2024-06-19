@@ -12,6 +12,8 @@ import plantShop.service.Interface.PaymentService;
 
 import java.time.LocalDate;
 
+import static plantShop.common.constant.PlantShopConstants.currentUserId;
+
 @Service
 public class PaymentServiceImpl implements PaymentService {
     @Autowired
@@ -20,9 +22,10 @@ public class PaymentServiceImpl implements PaymentService {
     PaymentRepo paymentRepo;
 
     @Override
-    public Boolean addPayment(PaymentRequest payment) {
-        var currentuser= new User();
-        currentuser.setUserId(3);
+    public void addPayment(PaymentRequest payment) {
+        // Todo get current user login
+        User currentUser = new User();
+        currentUser.setUserId(currentUserId);
 
         Payment newPayment = new Payment();
         newPayment.setCardNumber(payment.getCardNumber());
@@ -32,21 +35,21 @@ public class PaymentServiceImpl implements PaymentService {
         newPayment.setLastName(payment.getLastName());
         newPayment.setFirstName(payment.getFirstName());
         newPayment.setPhoneNumber(payment.getPhoneNumber());
-        newPayment.setUser(currentuser);
+        newPayment.setUser(currentUser);
         newPayment.setCreatedDate(LocalDate.now());
         newPayment.setUpdateDate(LocalDate.now());
 
         paymentRepo.save(newPayment);
-        return true;
     }
 
     @Override
-    public Boolean updatePayment(int userId, PaymentRequest param) {
+    public void updatePayment(int userId, PaymentRequest param) {
         var payment = modelMapper.map(paymentRepo.findById(userId), Payment.class);
         if(payment == null) throw  new  IllegalArgumentException("Payment not found");
 
-        var currentuser= new User();
-        currentuser.setUserId(3);
+        // Todo get current user login
+        User currentUser = new User();
+        currentUser.setUserId(currentUserId);
 
         payment.setCardNumber(param.getCardNumber());
         payment.setPaymentMethod(param.getPaymentMethod());
@@ -55,19 +58,19 @@ public class PaymentServiceImpl implements PaymentService {
         payment.setLastName(param.getLastName());
         payment.setFirstName(param.getFirstName());
         payment.setPhoneNumber(param.getPhoneNumber());
-        payment.setUser(currentuser);
+        payment.setUser(currentUser);
         payment.setCreatedDate(LocalDate.now());
         payment.setUpdateDate(LocalDate.now());
         paymentRepo.save(payment);
-        return true;
     }
 
     @Override
     public PaymentResponse getPayemntByUserId() {
-        var currentuser= new User();
-        currentuser.setUserId(3);
+        // Todo get current user login
+        User currentUser = new User();
+        currentUser.setUserId(currentUserId);
         var payment = paymentRepo.findAll().stream()
-                .filter(p->p.getUser().getUserId() == currentuser.getUserId()).findFirst().orElse(null);
+                .filter(p->p.getUser().getUserId() == currentUser.getUserId()).findFirst().orElse(null);
 
         return payment != null ? modelMapper.map(payment, PaymentResponse.class) : null;
     }

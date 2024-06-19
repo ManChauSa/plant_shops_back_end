@@ -3,11 +3,8 @@ package plantShop.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import plantShop.Entity.dto.category.CategoryResponse;
-import plantShop.Entity.dto.category.CreateOrUpdateCategoryRequest;
 import plantShop.Entity.dto.product.CreateOrUpdateProductRequest;
 import plantShop.Entity.dto.product.ProductResponse;
-import plantShop.common.constant.SortType;
 import plantShop.service.Interface.ProductService;
 
 import java.util.List;

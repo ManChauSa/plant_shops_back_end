@@ -1,6 +1,5 @@
 package plantShop.service.Interface;
 
-import plantShop.Entity.Category;
 import plantShop.Entity.dto.category.CategoryResponse;
 import plantShop.Entity.dto.category.CreateOrUpdateCategoryRequest;
 

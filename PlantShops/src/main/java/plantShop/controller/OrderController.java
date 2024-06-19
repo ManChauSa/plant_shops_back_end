@@ -8,7 +8,6 @@ import plantShop.Entity.dto.order.ChangeStatusRequest;
 import plantShop.Entity.dto.order.CreateOrderRequest;
 import plantShop.Entity.dto.order.OrderResponse;
 import plantShop.Entity.dto.payment.PaymentResponse;
-import plantShop.common.constant.OrderStatus;
 import plantShop.service.Interface.AddressService;
 import plantShop.service.Interface.OrderService;
 import plantShop.service.Interface.PaymentService;
@@ -50,6 +49,10 @@ public class OrderController {
         return orderService.getOrderHistory();
     }
 
+    @GetMapping("/{id}")
+    public OrderResponse getOrderDetails(@PathVariable("id") int id) {
+        return orderService.getOrderDetails(id);
+    }
     @GetMapping("/address")
     public AddressResponse getAddressUserId() {
         return addressService.getAddressByUserId();

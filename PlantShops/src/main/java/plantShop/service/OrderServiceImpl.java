@@ -19,6 +19,7 @@ import plantShop.service.Interface.PaymentService;
 import java.time.LocalDate;
 import java.util.List;
 
+import static plantShop.common.constant.PlantShopConstants.currentUserId;
 import static plantShop.common.constant.PlantShopConstants.tenPercentTax;
 
 @Service
@@ -48,8 +49,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public void createOrder(CreateOrderRequest order) {
-        // get current user login
-        var currentUserId =3;
+        // Todo get current user login
         User currentUser = new User();
         currentUser.setUserId(currentUserId);
 
@@ -118,7 +118,10 @@ public class OrderServiceImpl implements OrderService {
         var order = orderRepo.findById(orderId).get();
         if(order == null) throw new IllegalArgumentException("Order not found");
 
-        var currentUser = new User();
+        // Todo get current user login
+        User currentUser = new User();
+        currentUser.setUserId(currentUserId);
+
         if(currentUser.getRole() == Role.ROLE_BUYER.toString() && order.getStatus() != OrderStatus.ORDERED){
             throw new IllegalArgumentException("Order is can not cancelled");
         }
@@ -127,7 +130,6 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public List<OrderResponse> getOrderHistory() {
-        var a = orderRepo.findAll();
         return listMapper.mapList(orderRepo.findAll(), new OrderResponse());
     }
 

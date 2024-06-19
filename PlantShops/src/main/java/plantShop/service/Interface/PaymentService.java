@@ -5,7 +5,7 @@ import plantShop.Entity.dto.payment.PaymentResponse;
 
 public interface PaymentService {
 
-    Boolean addPayment(PaymentRequest payment);
-    Boolean updatePayment(int userId, PaymentRequest payment);
+    void addPayment(PaymentRequest payment);
+    void updatePayment(int userId, PaymentRequest payment);
     PaymentResponse getPayemntByUserId();
 }

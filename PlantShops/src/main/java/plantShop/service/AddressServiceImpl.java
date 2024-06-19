@@ -12,6 +12,8 @@ import plantShop.service.Interface.AddressService;
 
 import java.time.LocalDate;
 
+import static plantShop.common.constant.PlantShopConstants.currentUserId;
+
 @Service
 public class AddressServiceImpl implements AddressService {
 
@@ -21,7 +23,7 @@ public class AddressServiceImpl implements AddressService {
     ModelMapper modelMapper;
 
     @Override
-    public Boolean addAddress(AddressRequest address) {
+    public void addAddress(AddressRequest address) {
         var currentuser= new User();
         currentuser.setUserId(3);
         Address newAddress = new Address();
@@ -38,17 +40,17 @@ public class AddressServiceImpl implements AddressService {
         newAddress.setCreatedDate(LocalDate.now());
 
         addressRepo.save(newAddress);
-        return true;
     }
 
     @Override
-    public Boolean updateAddress(int userId, AddressRequest param) {
+    public void updateAddress(int userId, AddressRequest param) {
        var address = addressRepo.findAll()
                .stream().filter(a->a.getUser().getUserId() == userId).findFirst().get();
         if(address != null) {throw new IllegalArgumentException("User not found");}
 
-        var currentuser= new User();
-        currentuser.setUserId(3);
+        // Todo get current user login
+        User currentUser = new User();
+        currentUser.setUserId(currentUserId);
 
         address.setAddressStreet(param.getAddressStreet());
         address.setAddressLine1(param.getAddressLine1());
@@ -58,20 +60,20 @@ public class AddressServiceImpl implements AddressService {
         address.setZipCode(param.getZipCode());
         address.setState(param.getState());
         address.setZipCode(param.getZipCode());
-        address.setUser(currentuser);
+        address.setUser(currentUser);
         address.setCreatedDate(LocalDate.now());
 
         addressRepo.save(address);
-        return true;
     }
 
     @Override
     public AddressResponse getAddressByUserId() {
-        var currentuser= new User();
-        currentuser.setUserId(3);
+        // Todo get current user login
+        User currentUser = new User();
+        currentUser.setUserId(currentUserId);
 
         var address = addressRepo.findAll()
-                .stream().filter(a->a.getUser().getUserId() == currentuser.getUserId()).findFirst().orElse(null);
+                .stream().filter(a->a.getUser().getUserId() == currentUser.getUserId()).findFirst().orElse(null);
         return address != null ? modelMapper.map(address, AddressResponse.class) : null;
     }
 }
