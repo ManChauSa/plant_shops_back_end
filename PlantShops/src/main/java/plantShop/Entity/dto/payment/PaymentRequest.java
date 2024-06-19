@@ -1,28 +1,18 @@
-package plantShop.Entity;
+package plantShop.Entity.dto.payment;
 
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import plantShop.common.constant.PaymentMethod;
 
 import java.time.LocalDate;
-import java.util.Date;
 
-
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
-public class Payment {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer paymentId;
-
-    @ManyToOne
-    @JoinColumn(name = "userId", nullable = false)
-    private User user;
-
+public class PaymentRequest {
     private String cardNumber;
     private PaymentMethod paymentMethod;
     private String expirationDate;
@@ -30,6 +20,4 @@ public class Payment {
     private String lastName;
     private String firstName;
     private String phoneNumber;
-    private LocalDate createdDate;
-    private LocalDate updateDate;
 }
