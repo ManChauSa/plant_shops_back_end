@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import plantShop.common.constant.OrderStatus;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -14,6 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Table(name = "\"order\"")
 public class Order {
 
     @Id
@@ -21,15 +23,16 @@ public class Order {
     private Integer orderId;
 
     @ManyToOne
-    @JoinColumn(name = "userId")
+    @JoinColumn(name = "user_Id")
     private User buyer;
 
     @OneToMany(mappedBy = "orderItemId", cascade = CascadeType.ALL)
     private List<OrderItem> orderItems;
-
-    private Date shipDate;
-
+    private String couponCode;
+    private Double tax;
+    private LocalDate shipDate;
+    private Double total;
     private OrderStatus status;
-    private Date createdDate;
-    private Date updateDate;
+    private LocalDate createdDate;
+    private LocalDate updateDate;
 }
