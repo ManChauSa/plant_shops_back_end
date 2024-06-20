@@ -23,7 +23,6 @@ public class Product {
     private String productName;
     private String description;
     private Double price;
-    private String imageUrl;
 
     @ManyToOne
     @JoinColumn(name = "seller_Id")

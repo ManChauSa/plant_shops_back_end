@@ -25,6 +25,12 @@ public class ProductController {
         return productService.getAllProducts();
     }
 
+    @GetMapping("/seller/{id}")
+    public List<ProductResponse> getAllProductsBySelelr(@PathVariable("id") int id) {
+
+        return productService.getAllProductsBySellerId(id);
+    }
+
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
     public void createProduct(@RequestBody CreateOrUpdateProductRequest param){

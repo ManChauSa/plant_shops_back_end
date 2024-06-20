@@ -17,5 +17,6 @@ public class CreateOrderRequest {
     List<OrderItems> listOfOrderItems;
     String couponCode;
     AddressRequest address;
+    String imageUrl;
     PaymentRequest paymentInfor;
 }
