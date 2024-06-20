@@ -7,6 +7,7 @@ import lombok.Setter;
 import plantShop.Entity.OrderItem;
 import plantShop.Entity.Seller;
 import plantShop.Entity.User;
+import plantShop.Entity.dto.user.UserRespone;
 import plantShop.common.constant.OrderStatus;
 
 import java.time.LocalDate;
@@ -19,7 +20,7 @@ import java.util.List;
 public class OrderResponse {
      Integer orderId;
 
-     User buyer;
+     UserRespone buyer;
      Seller seller;
      List<OrderItem> orderItems;
      String couponCode;
