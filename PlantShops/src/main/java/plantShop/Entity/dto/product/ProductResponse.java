@@ -7,6 +7,7 @@ import lombok.Setter;
 import plantShop.Entity.Category;
 import plantShop.Entity.DiscountAndOffer;
 import plantShop.Entity.User;
+import plantShop.Entity.dto.user.UserRespone;
 import plantShop.common.constant.ProductType;
 import plantShop.common.constant.Status;
 
@@ -23,7 +24,7 @@ public class ProductResponse {
      String productName;
      String description;
      Double price;
-     User seller;
+     UserRespone seller;
      Integer inventoryCount;
      Status status;
      Category category;
