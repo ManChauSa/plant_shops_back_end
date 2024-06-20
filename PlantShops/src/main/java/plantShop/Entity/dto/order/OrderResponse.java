@@ -4,10 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import plantShop.Entity.OrderItem;
 import plantShop.Entity.Seller;
-import plantShop.Entity.User;
-import plantShop.Entity.dto.user.UserRespone;
+import plantShop.Entity.dto.user.UserResponse;
 import plantShop.common.constant.OrderStatus;
 
 import java.time.LocalDate;
@@ -20,7 +18,7 @@ import java.util.List;
 public class OrderResponse {
      Integer orderId;
 
-     UserRespone buyer;
+     UserResponse buyer;
      Seller seller;
      List<OrderItems> orderItems;
      String couponCode;

@@ -10,9 +10,11 @@ public interface ProductService {
     ProductResponse getProductById(int id);
     List<ProductResponse> getAllProducts();
     List<ProductResponse> getAllProductsBySellerId(int id);
-    void addProduct(CreateOrUpdateProductRequest product);
-    void updateProduct(int productId, CreateOrUpdateProductRequest product);
+    int addProduct(CreateOrUpdateProductRequest product);
+    int updateProduct(int productId, CreateOrUpdateProductRequest product);
     void deleteProduct(int productId);
 
-    List<ProductResponse> filterProduct(String categoryIds, String listSortTypes);
+    List<ProductResponse> filterProduct(String categoryIds, String listSortTypes, int minPrice, int maxPrice, String search);
+    List<ProductResponse> findTop8ByOrderByCreatedDateDesc();
+
 }
