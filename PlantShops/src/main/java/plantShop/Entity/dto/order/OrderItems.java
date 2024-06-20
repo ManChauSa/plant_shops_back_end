@@ -13,5 +13,6 @@ public class OrderItems {
      Integer productId;
      String productName;
      Integer quantities;
+     String image;
      Double price;
 }

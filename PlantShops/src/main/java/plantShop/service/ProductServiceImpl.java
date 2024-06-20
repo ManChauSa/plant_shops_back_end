@@ -4,14 +4,12 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import plantShop.Entity.*;
+import plantShop.Entity.dto.image.ImageResponse;
 import plantShop.Entity.dto.product.CreateOrUpdateProductRequest;
 import plantShop.Entity.dto.product.ProductResponse;
 import plantShop.common.constant.SortType;
 import plantShop.helper.ListMapper;
-import plantShop.repo.CategoryRepo;
-import plantShop.repo.DiscountOfferRepo;
-import plantShop.repo.ProductRepo;
-import plantShop.repo.ReviewRepo;
+import plantShop.repo.*;
 import plantShop.service.Interface.CategoryService;
 import plantShop.service.Interface.DiscountOfferService;
 import plantShop.service.Interface.ProductService;
@@ -29,9 +27,14 @@ import static plantShop.common.constant.PlantShopConstants.*;
 public class ProductServiceImpl implements ProductService {
     @Autowired
     ProductRepo productRepo;
+    @Autowired
     ReviewRepo reviewRepo;
+    @Autowired
+    ImageRepo imageRepo;
 
+    @Autowired
     DiscountOfferService discountOfferService;
+    @Autowired
     CategoryService categoryService;
     @Autowired
     private ModelMapper modelMapper;
@@ -44,12 +47,30 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductResponse getProductById(int id) {
-        return modelMapper.map(productRepo.findById(id), ProductResponse.class);
+        ProductResponse result;
+        result = modelMapper.map(productRepo.findById(id), ProductResponse.class);
+        result.setImages(getImagesByProductId(result.getProductId()));
+        return result;
     }
 
     @Override
     public List<ProductResponse> getAllProducts() {
-        return (List<ProductResponse>) listMapper.mapList(productRepo.findAll(), new ProductResponse());
+        List<ProductResponse> result;
+        result= listMapper.mapList(productRepo.findAll(), new ProductResponse());
+        result.forEach(r->{
+            r.setImages(getImagesByProductId(r.getProductId()));
+        });
+        return result;
+    }
+
+    @Override
+    public List<ProductResponse> getAllProductsBySellerId(int id) {
+        List<ProductResponse> result;
+        result= listMapper.mapList(productRepo.findAll().stream().filter(p->p.getSeller() != null && p.getSeller().getUserId().equals(id)).toList(), new ProductResponse());
+        result.forEach(r->{
+            r.setImages(getImagesByProductId(r.getProductId()));
+        });
+        return result;
     }
 
     @Override
@@ -63,7 +84,11 @@ public class ProductServiceImpl implements ProductService {
         currentUser.setUserId(currentSellerId);
 
         // get discount
-        var discounts = getDiscountOffers(product.getDiscountIds());
+        List<DiscountAndOffer> discounts;
+        if(product.getDiscountIds() != null) {
+            discounts = getDiscountOffers(product.getDiscountIds());
+            newProduct.setDiscounts(discounts);
+        }
 
         newProduct.setCategory(category);
         newProduct.setPrice(product.getPrice());
@@ -71,14 +96,24 @@ public class ProductServiceImpl implements ProductService {
         newProduct.setDescription(product.getDescription());
         newProduct.setProductType(product.getProductType());
         newProduct.setPrice(product.getPrice());
-        newProduct.setImageUrl(product.getImageUrl());
         newProduct.setInventoryCount(product.getInventoryCount());
         newProduct.setStatus(product.getStatus());
         newProduct.setSeller(currentUser);
-        newProduct.setDiscounts(discounts);
         product.setCreatedDate(LocalDate.now());
 
-        productRepo.save(newProduct);
+        var nProduct = productRepo.save(newProduct);
+
+        List<Image> images = new ArrayList<>();
+        product.getImages().forEach(p->{
+                    Image image = new Image();
+                    image.setCreateDate(LocalDate.now());
+                    image.setUpdateDate(LocalDate.now());
+                    image.setImageUrl(p);
+                    image.setProduct(nProduct);
+                    images.add(image);
+                }
+        );
+        imageRepo.saveAll(images);
     }
 
     @Override
@@ -91,8 +126,12 @@ public class ProductServiceImpl implements ProductService {
         // Todo get current user login
         User currentUser = new User();
         currentUser.setUserId(currentSellerId);
+        List<DiscountAndOffer> discounts;
+        if(param.getDiscountIds() != null) {
+            discounts = getDiscountOffers(param.getDiscountIds());
+            product.setDiscounts(discounts);
+        }
 
-        var discounts = getDiscountOffers(param.getDiscountIds());
 
         product.setCategory(category);
         product.setPrice(product.getPrice());
@@ -100,14 +139,24 @@ public class ProductServiceImpl implements ProductService {
         product.setDescription(product.getDescription());
         product.setProductType(product.getProductType());
         product.setPrice(product.getPrice());
-        product.setImageUrl(product.getImageUrl());
         product.setInventoryCount(product.getInventoryCount());
         product.setStatus(product.getStatus());
         product.setSeller(currentUser);
-        product.setDiscounts(discounts);
         product.setUpdateDate(LocalDate.now());
 
-        productRepo.save(product);
+        var newProduct = productRepo.save(product);
+
+        List<Image> images = new ArrayList<>();
+        param.getImages().forEach(p->{
+                    Image image = new Image();
+                    image.setCreateDate(LocalDate.now());
+                    image.setUpdateDate(LocalDate.now());
+                    image.setImageUrl(p);
+                    image.setProduct(newProduct);
+                    images.add(image);
+                }
+        );
+        imageRepo.saveAll(images);
     }
 
     @Override
@@ -119,7 +168,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<ProductResponse> filterProduct(String categoryIdsStr, String listSortTypesStr) {
-        List<Product> products;
+        List<ProductResponse> products;
         List<Integer> categoryIds = Arrays.stream(categoryIdsStr.split(","))
                 .map(Integer::parseInt)
                 .collect(Collectors.toList());
@@ -129,7 +178,11 @@ public class ProductServiceImpl implements ProductService {
                     .map(index -> SortType.values()[index])
                     .collect(Collectors.toList());
         //get products
-        products = productRepo.findAll();
+        products = listMapper.mapList(productRepo.findAll(), new ProductResponse());;
+
+        products.forEach(p->{
+            p.setImages(getImagesByProductId(p.getProductId()));
+        });
 
         // Sort by category
         if (categoryIds != null) {
@@ -142,18 +195,18 @@ public class ProductServiceImpl implements ProductService {
             for (SortType sortType : listSortTypes) {
                 switch (sortType) {
                     case NEW_ARRIVALS:
-                        products.sort(Comparator.comparing(Product::getCreatedDate).reversed());
+                        products.sort(Comparator.comparing(ProductResponse::getCreatedDate).reversed());
                     case NAME_ASC:
-                        products.sort(Comparator.comparing(Product::getProductName));
+                        products.sort(Comparator.comparing(ProductResponse::getProductName));
                         break;
                     case NAME_DESC:
-                        products.sort(Comparator.comparing(Product::getProductName).reversed());
+                        products.sort(Comparator.comparing(ProductResponse::getProductName).reversed());
                         break;
                     case PRICE_ASC:
-                        products.sort(Comparator.comparing(Product::getPrice));
+                        products.sort(Comparator.comparing(ProductResponse::getPrice));
                         break;
                     case PRICE_DESC:
-                        products.sort(Comparator.comparing(Product::getPrice).reversed());
+                        products.sort(Comparator.comparing(ProductResponse::getPrice).reversed());
                         break;
                     case RATING:
                         products.sort(Comparator.comparing(p -> getAverageRating(p.getProductId())));
@@ -165,6 +218,12 @@ public class ProductServiceImpl implements ProductService {
 
         return listMapper.mapList(products, new ProductResponse());
 
+    }
+
+    private List<ImageResponse> getImagesByProductId(int productId) {
+        List<Image> images;
+        images = imageRepo.findAll().stream().filter(i->i.getProduct().getProductId().equals(productId)).collect(Collectors.toList());
+        return listMapper.mapList(images, new ImageResponse());
     }
 
     private Double getAverageRating(int id) {

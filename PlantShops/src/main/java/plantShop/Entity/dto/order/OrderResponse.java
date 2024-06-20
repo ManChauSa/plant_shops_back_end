@@ -22,12 +22,13 @@ public class OrderResponse {
 
      UserRespone buyer;
      Seller seller;
-     List<OrderItem> orderItems;
+     List<OrderItems> orderItems;
      String couponCode;
      Double tax;
      LocalDate shipDate;
      Double total;
      OrderStatus status;
+     String imageUrl;
      LocalDate createdDate;
      LocalDate updateDate;
 }

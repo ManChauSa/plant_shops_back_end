@@ -6,7 +6,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import plantShop.Entity.Category;
 import plantShop.Entity.DiscountAndOffer;
+import plantShop.Entity.Image;
 import plantShop.Entity.User;
+import plantShop.Entity.dto.image.ImageResponse;
 import plantShop.Entity.dto.user.UserRespone;
 import plantShop.common.constant.ProductType;
 import plantShop.common.constant.Status;
@@ -31,6 +33,6 @@ public class ProductResponse {
      ProductType productType;
      LocalDate createdDate;
      LocalDate updateDate;
-     String imageUrl;
+     List<ImageResponse> images;
      List<DiscountAndOffer> discounts;
 }

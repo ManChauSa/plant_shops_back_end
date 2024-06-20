@@ -25,8 +25,6 @@ public class Order {
     @JoinColumn(name = "user_Id")
     private User buyer;
 
-    @OneToMany(mappedBy = "orderItemId", cascade = CascadeType.ALL)
-    private List<OrderItem> orderItems;
     private String couponCode;
     private Double tax;
     private LocalDate shipDate;

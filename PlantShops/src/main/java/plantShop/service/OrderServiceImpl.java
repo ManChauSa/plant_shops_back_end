@@ -17,7 +17,9 @@ import plantShop.service.Interface.OrderService;
 import plantShop.service.Interface.PaymentService;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static plantShop.common.constant.PlantShopConstants.currentUserId;
 import static plantShop.common.constant.PlantShopConstants.tenPercentTax;
@@ -63,11 +65,6 @@ public class OrderServiceImpl implements OrderService {
         // cal tax
         var tax = subTotal* tenPercentTax;
 
-        //save order items
-        List<OrderItem> orderItems = listMapper.mapList(order.getListOfOrderItems(), new OrderItem());
-        orderItems.forEach(oi -> oi.setCreatedDate(LocalDate.now()));
-        orderItemRepo.saveAll(orderItems);
-
         // address
         var address = addressService.getAddressByUserId();
         if(address == null){
@@ -91,7 +88,6 @@ public class OrderServiceImpl implements OrderService {
         Order newOder = new Order();
 
         newOder.setBuyer(currentUser);
-        newOder.setOrderItems(orderItems);
         newOder.setCouponCode(order.getCouponCode());
         newOder.setTax(tax);
         newOder.setTotal(subTotal+tax);
@@ -99,8 +95,16 @@ public class OrderServiceImpl implements OrderService {
         newOder.setStatus(OrderStatus.ORDERED);
         newOder.setCreatedDate(LocalDate.now());
 
-        orderRepo.save(newOder);
+        var newOrder = orderRepo.save(newOder);
+        //save order items
+        List<OrderItem> orderItems = listMapper.mapList(order.getListOfOrderItems(), new OrderItem());
+        orderItems.forEach(oi -> {
+            oi.setOrder(newOrder);
+            oi.setCreatedDate(LocalDate.now());
+            oi.setUpdateDate(LocalDate.now());
+        });
 
+        orderItemRepo.saveAll(orderItems);
     }
 
     @Override
@@ -130,11 +134,25 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public List<OrderResponse> getOrderHistory() {
-        return listMapper.mapList(orderRepo.findAll(), new OrderResponse());
+        List<OrderResponse> orders =listMapper.mapList(orderRepo.findAll(), new OrderResponse());
+        orders.forEach(o->{
+            o.setOrderItems(getOrderItemByOrderId(o.getOrderId()));
+        });
+
+        return  orders;
     }
 
     @Override
     public OrderResponse getOrderDetails(int orderId) {
-        return modelMapper.map(orderRepo.findById(orderId), OrderResponse.class);
+        var orderDetail = modelMapper.map(orderRepo.findById(orderId), OrderResponse.class);
+        orderDetail.setOrderItems(getOrderItemByOrderId(orderDetail.getOrderId()));
+        return orderDetail;
+    }
+
+    private List<OrderItems> getOrderItemByOrderId(Integer orderId){
+        List<OrderItems> result;
+        var orderItems = orderItemRepo.findAll().stream().filter(oi->oi.getOrder().getOrderId().equals(orderId)).collect(Collectors.toList());
+        result = listMapper.mapList(orderItems,new OrderItems());
+        return  result;
     }
 }
