@@ -18,11 +18,29 @@ public class ProductController {
 
     @GetMapping
     public List<ProductResponse> getAllProducts(@RequestParam(required = false) String listCategories,
-                                                @RequestParam(required = false) String listSortTypes) {
-        if(listCategories != null || listSortTypes != null) {
-            return productService.filterProduct(listCategories, listSortTypes);
+                                                @RequestParam(required = false) String listSortTypes,
+                                                @RequestParam(required = false) Integer minPrice,
+                                                @RequestParam(required = false) Integer maxPrice,
+                                                @RequestParam(required = false) String search) {
+        if(search != null || listCategories != null || listSortTypes != null) {
+            return productService.filterProduct(listCategories, listSortTypes, minPrice, maxPrice, search);
         }
         return productService.getAllProducts();
+    }
+
+    @GetMapping("/newarrival")
+    public List<ProductResponse> getNewArrivalProducts() {
+        return productService.findTop8ByOrderByCreatedDateDesc();
+    }
+
+    @GetMapping("/trending")
+    public List<ProductResponse> getTrandingProducts() {
+        return productService.findTop8ByOrderByCreatedDateDesc();
+    }
+
+    @GetMapping("/sale")
+    public List<ProductResponse> getSaleProducts() {
+        return productService.findTop8ByOrderByCreatedDateDesc();
     }
 
     @GetMapping("/seller/{id}")
@@ -31,16 +49,22 @@ public class ProductController {
         return productService.getAllProductsBySellerId(id);
     }
 
+    @GetMapping("/{id}")
+    public ProductResponse GetProductById(@PathVariable("id") int id) {
+
+        return productService.getProductById(id);
+    }
+
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    public void createProduct(@RequestBody CreateOrUpdateProductRequest param){
-        productService.addProduct(param);
+    public int createProduct(@RequestBody CreateOrUpdateProductRequest param){
+        return productService.addProduct(param);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PutMapping("/{id}")
-    public void updateProduct(@PathVariable("id") int id ,@RequestBody CreateOrUpdateProductRequest  param){
-        productService.updateProduct(id,param);
+    public int updateProduct(@PathVariable("id") int id ,@RequestBody CreateOrUpdateProductRequest  param){
+        return productService.updateProduct(id,param);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)

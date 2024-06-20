@@ -1,8 +1,8 @@
 --  INSER USER
-INSERT INTO "user" (user_name, password, email, phone, first_name, last_name, role)
-VALUES ('admin', 'password123', 'admin@example.com', '1234567890', 'admin', 'admin', 'ROLE_ADMIN');
-INSERT INTO "user" (user_name, password, email, phone, first_name, last_name, role) VALUES ('seller', 'password123', 'seller@example.com', '1234567890', 'John', 'Doe', 'ROLE_SELLER');
-INSERT INTO "user" (user_name, password, email, phone, first_name, last_name, role) VALUES ('buyer', 'password123', 'buyer@example.com', '1245677890', 'Anna', 'Jade', 'ROLE_BUYER');
+INSERT INTO "user" (user_name, password, email, phone, name, role)
+VALUES ('admin', '$2a$10$Uqxn13qrL0j6TetMuKcVle.hnEShBeFkFgyWM0ZSuhD1uwKsLuBtS', 'admin@example.com', '1234567890', 'admin', 'ROLE_ADMIN');
+INSERT INTO "user" (user_name, password, email, phone, name, role) VALUES ('seller', '$2a$10$Uqxn13qrL0j6TetMuKcVle.hnEShBeFkFgyWM0ZSuhD1uwKsLuBtS', 'seller@example.com', '1234567890', 'John Doe', 'ROLE_SELLER');
+INSERT INTO "user" (user_name, password, email, phone, name, role) VALUES ('buyer', '$2a$10$Uqxn13qrL0j6TetMuKcVle.hnEShBeFkFgyWM0ZSuhD1uwKsLuBtS', 'buyer@example.com', '1245677890', 'Anna Jade', 'ROLE_BUYER');
 
 -- -- insert category
 INSERT INTO Category (category_name, category_desc, parent_id) VALUES ('Outdoor Plant', 'Plant live in outdoor', NULL);

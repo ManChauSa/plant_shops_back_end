@@ -6,10 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import plantShop.Entity.Category;
 import plantShop.Entity.DiscountAndOffer;
-import plantShop.Entity.Image;
-import plantShop.Entity.User;
 import plantShop.Entity.dto.image.ImageResponse;
-import plantShop.Entity.dto.user.UserRespone;
+import plantShop.Entity.dto.user.UserResponse;
 import plantShop.common.constant.ProductType;
 import plantShop.common.constant.Status;
 
@@ -26,7 +24,7 @@ public class ProductResponse {
      String productName;
      String description;
      Double price;
-     UserRespone seller;
+     UserResponse seller;
      Integer inventoryCount;
      Status status;
      Category category;
@@ -35,4 +33,5 @@ public class ProductResponse {
      LocalDate updateDate;
      List<ImageResponse> images;
      List<DiscountAndOffer> discounts;
+
 }

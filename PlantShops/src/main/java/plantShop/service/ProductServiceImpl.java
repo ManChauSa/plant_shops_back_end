@@ -74,7 +74,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public void addProduct(CreateOrUpdateProductRequest product) {
+    public int addProduct(CreateOrUpdateProductRequest product) {
         Product newProduct = new Product();
         var category = modelMapper.map(categoryService.getCategoryById(product.getCategoryId()), Category.class);
         if (category == null) throw new IllegalArgumentException("Category not found");
@@ -103,21 +103,25 @@ public class ProductServiceImpl implements ProductService {
 
         var nProduct = productRepo.save(newProduct);
 
-        List<Image> images = new ArrayList<>();
-        product.getImages().forEach(p->{
-                    Image image = new Image();
-                    image.setCreateDate(LocalDate.now());
-                    image.setUpdateDate(LocalDate.now());
-                    image.setImageUrl(p);
-                    image.setProduct(nProduct);
-                    images.add(image);
-                }
-        );
-        imageRepo.saveAll(images);
+        if(product.getImages() != null)
+        {
+            List<Image> images = new ArrayList<>();
+            product.getImages().forEach(p->{
+                        Image image = new Image();
+                        image.setCreateDate(LocalDate.now());
+                        image.setUpdateDate(LocalDate.now());
+                        image.setImageUrl(p);
+                        image.setProduct(nProduct);
+                        images.add(image);
+                    }
+            );
+            imageRepo.saveAll(images);
+        }
+        return nProduct.getProductId();
     }
 
     @Override
-    public void updateProduct(int productId, CreateOrUpdateProductRequest param) {
+    public int updateProduct(int productId, CreateOrUpdateProductRequest param) {
         var product = productRepo.findById(productId).get();
         if (product == null) throw new IllegalArgumentException("Product not found");
         var category = modelMapper.map(categoryService.getCategoryById(param.getCategoryId()), Category.class);
@@ -157,6 +161,8 @@ public class ProductServiceImpl implements ProductService {
                 }
         );
         imageRepo.saveAll(images);
+
+        return newProduct.getProductId();
     }
 
     @Override
@@ -167,31 +173,47 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<ProductResponse> filterProduct(String categoryIdsStr, String listSortTypesStr) {
+    public List<ProductResponse> filterProduct(String categoryIdsStr, String listSortTypesStr, int minPrice, int maxPrice, String search) {
         List<ProductResponse> products;
-        List<Integer> categoryIds = Arrays.stream(categoryIdsStr.split(","))
-                .map(Integer::parseInt)
-                .collect(Collectors.toList());
 
-        List<SortType> listSortTypes = Arrays.stream(listSortTypesStr.split(","))
-                    .map(Integer::parseInt)
-                    .map(index -> SortType.values()[index])
-                    .collect(Collectors.toList());
         //get products
         products = listMapper.mapList(productRepo.findAll(), new ProductResponse());;
+
+        // filter by search key
+        if (search != null) {
+            String searchKey = search.toLowerCase();
+            products = products.stream()
+                    .filter(p -> p.getProductName().toLowerCase().contains(searchKey) || p.getDescription().toLowerCase().contains(searchKey))
+                    .collect(Collectors.toList());
+        }
+
+        products = products.stream()
+                .filter(p -> p.getPrice() >= minPrice && p.getPrice() <= maxPrice)
+                .collect(Collectors.toList());
 
         products.forEach(p->{
             p.setImages(getImagesByProductId(p.getProductId()));
         });
 
         // Sort by category
-        if (categoryIds != null) {
+        if (categoryIdsStr != null) {
+
+            List<Integer> categoryIds = Arrays.stream(categoryIdsStr.split(","))
+                    .map(Integer::parseInt)
+                    .collect(Collectors.toList());
+
             products = products.stream()
                     .filter(p -> categoryIds.contains(p.getCategory().getCategoryId()))
                     .collect(Collectors.toList());
         }
-    // sort by sort type
-        if (listSortTypes != null) {
+        // sort by sort type
+        if (listSortTypesStr != null) {
+
+            List<SortType> listSortTypes = Arrays.stream(listSortTypesStr.split(","))
+                    .map(Integer::parseInt)
+                    .map(index -> SortType.values()[index])
+                    .collect(Collectors.toList());
+
             for (SortType sortType : listSortTypes) {
                 switch (sortType) {
                     case NEW_ARRIVALS:
@@ -241,6 +263,11 @@ public class ProductServiceImpl implements ProductService {
                 .collect(Collectors.toList());
         if (discounts.isEmpty()) {return new ArrayList<DiscountAndOffer>();}
         return  listMapper.mapList(discounts, new DiscountAndOffer());
+    }
+
+    @Override
+    public List<ProductResponse> findTop8ByOrderByCreatedDateDesc() {
+        return (List<ProductResponse>) listMapper.mapList(productRepo.findTop8ByOrderByCreatedDateDesc(), new ProductResponse());
     }
 }
 
