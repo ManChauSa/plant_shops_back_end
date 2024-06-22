@@ -21,11 +21,14 @@ public class AddressServiceImpl implements AddressService {
     AddressRepo addressRepo;
     @Autowired
     ModelMapper modelMapper;
+    @Autowired
+    private UserService userService;
 
     @Override
     public void addAddress(AddressRequest address) {
-        var currentuser= new User();
-        currentuser.setUserId(3);
+
+        User currentUser = new User();
+        currentUser= userService.getCurrentUser();
         Address newAddress = new Address();
 
         newAddress.setAddressStreet(address.getAddressStreet());
@@ -36,7 +39,7 @@ public class AddressServiceImpl implements AddressService {
         newAddress.setZipCode(address.getZipCode());
         newAddress.setState(address.getState());
         newAddress.setZipCode(address.getZipCode());
-        newAddress.setUser(currentuser);
+        newAddress.setUser(currentUser);
         newAddress.setCreatedDate(LocalDate.now());
 
         addressRepo.save(newAddress);
@@ -46,11 +49,7 @@ public class AddressServiceImpl implements AddressService {
     public void updateAddress(int userId, AddressRequest param) {
        var address = addressRepo.findAll()
                .stream().filter(a->a.getUser().getUserId() == userId).findFirst().get();
-        if(address != null) {throw new IllegalArgumentException("User not found");}
-
-        // Todo get current user login
-        User currentUser = new User();
-        currentUser.setUserId(currentUserId);
+        if(address == null) {throw new IllegalArgumentException("User not found");}
 
         address.setAddressStreet(param.getAddressStreet());
         address.setAddressLine1(param.getAddressLine1());
@@ -60,7 +59,6 @@ public class AddressServiceImpl implements AddressService {
         address.setZipCode(param.getZipCode());
         address.setState(param.getState());
         address.setZipCode(param.getZipCode());
-        address.setUser(currentUser);
         address.setCreatedDate(LocalDate.now());
 
         addressRepo.save(address);

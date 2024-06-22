@@ -5,7 +5,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import plantShop.Entity.dto.review.CreateReviewRequest;
 import plantShop.Entity.dto.review.ReviewProductRespone;
+import plantShop.Entity.dto.review.ReviewResponse;
 import plantShop.service.Interface.ReviewService;
+
+import java.util.List;
 
 
 @RestController
@@ -27,8 +30,14 @@ public class ReviewController {
          reviewService.deleteReview(id);
     }
 
+    @GetMapping("/personal/{id}")
+    public ReviewResponse getBuyerReviewsByProductId(@PathVariable("id") int productId){
+        return  reviewService.getBuyerReviewsByProductId(productId);
+    }
+
     @GetMapping("/{id}")
-    public ReviewProductRespone getReviewsByProductId(@PathVariable("id") int productId){
+    public List<ReviewResponse> getReviewsByProductId(@PathVariable("id") int productId){
         return  reviewService.getReviewByProductId(productId);
     }
+
 }

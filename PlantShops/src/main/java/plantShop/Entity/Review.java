@@ -27,6 +27,7 @@ public class Review {
     private User user;
 
     private Double rating;
+    private String name;
     private String reviewText;
 
     private LocalDate reviewDate;

@@ -19,7 +19,6 @@ public class OrderResponse {
      Integer orderId;
 
      UserResponse buyer;
-     Seller seller;
      List<OrderItems> orderItems;
      String couponCode;
      Double tax;

@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import plantShop.Entity.dto.account.JwtAuthenticationResponse;
 import plantShop.Entity.dto.account.SignInRequest;
 import plantShop.Entity.dto.account.SignUpRequest;
-import plantShop.service.AuthenticationService;
+import plantShop.service.AuthenticationServiceImpl;
 
 import java.util.HashMap;
 import java.util.List;
@@ -22,7 +22,7 @@ import java.util.Map;
 public class AuthenticationController {
 
     @Autowired
-    private AuthenticationService authenticationService;
+    private AuthenticationServiceImpl authenticationService;
 
     @PostMapping("/signup")
     public JwtAuthenticationResponse signup(@RequestBody @Validated SignUpRequest request) {

@@ -20,12 +20,14 @@ public class PaymentServiceImpl implements PaymentService {
     ModelMapper modelMapper;
     @Autowired
     PaymentRepo paymentRepo;
+    @Autowired
+    UserService userService;
 
     @Override
     public void addPayment(PaymentRequest payment) {
         // Todo get current user login
         User currentUser = new User();
-        currentUser.setUserId(currentUserId);
+        currentUser= userService.getCurrentUser();
 
         Payment newPayment = new Payment();
         newPayment.setCardNumber(payment.getCardNumber());
@@ -44,12 +46,8 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public void updatePayment(int userId, PaymentRequest param) {
-        var payment = modelMapper.map(paymentRepo.findById(userId), Payment.class);
+        var payment = modelMapper.map(paymentRepo.findAll().stream().filter(p->p.getUser().getUserId() == userId).findFirst(), Payment.class);
         if(payment == null) throw  new  IllegalArgumentException("Payment not found");
-
-        // Todo get current user login
-        User currentUser = new User();
-        currentUser.setUserId(currentUserId);
 
         payment.setCardNumber(param.getCardNumber());
         payment.setPaymentMethod(param.getPaymentMethod());
@@ -58,7 +56,6 @@ public class PaymentServiceImpl implements PaymentService {
         payment.setLastName(param.getLastName());
         payment.setFirstName(param.getFirstName());
         payment.setPhoneNumber(param.getPhoneNumber());
-        payment.setUser(currentUser);
         payment.setCreatedDate(LocalDate.now());
         payment.setUpdateDate(LocalDate.now());
         paymentRepo.save(payment);
@@ -67,8 +64,8 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public PaymentResponse getPayemntByUserId() {
         // Todo get current user login
-        User currentUser = new User();
-        currentUser.setUserId(currentUserId);
+        User currentUser = userService.getCurrentUser();
+
         var payment = paymentRepo.findAll().stream()
                 .filter(p->p.getUser().getUserId() == currentUser.getUserId()).findFirst().orElse(null);
 

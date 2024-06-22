@@ -7,4 +7,8 @@ import java.util.List;
 
 public interface ProductRepo extends JpaRepository<Product, Integer> {
     List<Product> findTop8ByOrderByCreatedDateDesc();
+
+    List<Product> findTop8ByOrderByInventoryCountDesc();
+
+    List<Product> findTop8ByOrderByDiscounts();
 }

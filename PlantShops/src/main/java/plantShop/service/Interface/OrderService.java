@@ -9,9 +9,9 @@ import java.util.List;
 public interface OrderService {
 
     void createOrder(CreateOrderRequest order);
-    void changeOrderStatus(int orderId,OrderStatus orderStatus);
+    void changeOrderStatus(int orderId,String status);
     void cancelOrder(int orderId);
-    List<OrderResponse> getOrderHistory();
+    List<OrderResponse> getOrderHistory(String status);
     OrderResponse getOrderDetails(int orderId);
 
 }

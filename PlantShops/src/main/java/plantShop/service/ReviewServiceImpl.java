@@ -7,9 +7,7 @@ import org.springframework.stereotype.Service;
 import plantShop.Entity.Product;
 import plantShop.Entity.Review;
 import plantShop.Entity.User;
-import plantShop.Entity.dto.order.OrderItems;
 import plantShop.Entity.dto.review.CreateReviewRequest;
-import plantShop.Entity.dto.review.ReviewProductRespone;
 import plantShop.Entity.dto.review.ReviewResponse;
 import plantShop.helper.ListMapper;
 import plantShop.repo.ReviewRepo;
@@ -17,8 +15,8 @@ import plantShop.service.Interface.ProductService;
 import plantShop.service.Interface.ReviewService;
 
 import java.time.LocalDate;
-
-import static plantShop.common.constant.PlantShopConstants.currentUserId;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class ReviewServiceImpl implements ReviewService {
@@ -33,6 +31,8 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Autowired
     ProductService productService;
+    @Autowired
+    private UserServiceImpl userService;
 
     @Override
     public void addReview(CreateReviewRequest request) {
@@ -42,31 +42,39 @@ public class ReviewServiceImpl implements ReviewService {
         if(product == null) {throw new IllegalArgumentException("Product not found");}
 
         // Todo get current user login
-        User currentUser = new User();
-        currentUser.setUserId(currentUserId);
+        User currentUser = userService.getCurrentUser();
 
         newReview.setUser(currentUser);
         newReview.setProduct(modelMapper.map(product, Product.class));
-        newReview.setRating(request.getRating());
         newReview.setReviewText(request.getReviewText());
         newReview.setReviewDate(LocalDate.now());
         newReview.setCreatedDate(LocalDate.now());
         newReview.setUpdateDate(LocalDate.now());
-
+        newReview.setName(currentUser.getName());
         reviewRepo.save(newReview);
     }
 
     @Override
-    public ReviewProductRespone getReviewByProductId(int id) {
+    public List<ReviewResponse> getReviewByProductId(int id) {
         var reviews = reviewRepo.findAll().stream().filter(r->r.getProduct().getProductId() == id).toList();
-        if(reviews.isEmpty()) return new ReviewProductRespone();
+        if(reviews.isEmpty())
+            return new ArrayList<>();
 
-        var rating = reviews.stream().mapToDouble(Review::getRating).average().getAsDouble();
-        var result= new ReviewProductRespone();
-        result.setProductId(id);
-        result.setReviews(listMapper.mapList(reviews,new ReviewResponse()));
-        result.setRatingAvg(rating);
-        return result;
+        return listMapper.mapList(reviews,new ReviewResponse());
+    }
+
+    @Override
+    public ReviewResponse getBuyerReviewsByProductId(int id) {
+        User currentUser = userService.getCurrentUser();
+
+        var reviews = reviewRepo.findAll().stream().filter(r->r.getProduct().getProductId() == id).toList();
+        var review = reviews.stream().filter(r->r.getProduct().getProductId() == id && r.getUser().getUsername() == currentUser.getUsername()).findFirst();
+        if(review.isEmpty())
+            return null;
+        ReviewResponse response = new ReviewResponse();
+        response.setName(review.get().getUser().getUsername());
+        response.setReviewText(review.get().getReviewText());
+        return response;
     }
 
     @Override

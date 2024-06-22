@@ -12,18 +12,8 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ReviewResponse {
-
-     Long reviewId;
-
-     Integer productIs;
-     String userId;
-     String lastName;
-     String firstName;
-     Double rating;
+     Integer reviewId;
+     String name;
      String reviewText;
-
-     LocalDate reviewDate;
-    LocalDate createdDate;
-    LocalDate updateDate;
 }
 

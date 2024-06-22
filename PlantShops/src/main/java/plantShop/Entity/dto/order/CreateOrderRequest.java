@@ -19,4 +19,5 @@ public class CreateOrderRequest {
     AddressRequest address;
     String imageUrl;
     PaymentRequest paymentInfor;
+    Double total;
 }
