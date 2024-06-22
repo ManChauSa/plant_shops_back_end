@@ -33,5 +33,4 @@ public class ProductResponse {
      LocalDate updateDate;
      List<ImageResponse> images;
      List<DiscountAndOffer> discounts;
-
 }

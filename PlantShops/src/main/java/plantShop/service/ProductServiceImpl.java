@@ -6,8 +6,8 @@ import org.springframework.stereotype.Service;
 import plantShop.Entity.*;
 import plantShop.Entity.dto.image.ImageResponse;
 import plantShop.Entity.dto.product.CreateOrUpdateProductRequest;
+import plantShop.Entity.dto.product.ProductPaging;
 import plantShop.Entity.dto.product.ProductResponse;
-import plantShop.common.constant.Role;
 import plantShop.common.constant.SortType;
 import plantShop.helper.ListMapper;
 import plantShop.repo.*;
@@ -16,10 +16,7 @@ import plantShop.service.Interface.DiscountOfferService;
 import plantShop.service.Interface.ProductService;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static plantShop.common.constant.PlantShopConstants.*;
@@ -40,12 +37,15 @@ public class ProductServiceImpl implements ProductService {
     @Autowired
     private ModelMapper modelMapper;
     @Autowired
-    private UserService userService;
+    private UserServiceImpl userService;
     @Autowired
     private ListMapper listMapper;
     @Autowired
     private DiscountOfferRepo discountOfferRepo;
-    private UserRepo userRepo;
+    @Autowired
+    private OrderRepo orderRepo;
+    @Autowired
+    private OrderItemRepo orderItemRepo;
 
 
     @Override
@@ -53,6 +53,7 @@ public class ProductServiceImpl implements ProductService {
         ProductResponse result;
         result = modelMapper.map(productRepo.findById(id), ProductResponse.class);
         result.setImages(getImagesByProductId(result.getProductId()));
+
         return result;
     }
 
@@ -85,18 +86,13 @@ public class ProductServiceImpl implements ProductService {
     public int addProduct(CreateOrUpdateProductRequest product) {
 
         User currentUser = userService.getCurrentUser();
-        if(currentUser != null)
-        {
-            currentUser = userRepo.findUserByUserName(currentUser.getUsername());
-        }
+
+        if(!currentUser.getIsApproved())
+            throw new IllegalArgumentException("Seller does not approved by Admin.");
 
         Product newProduct = new Product();
         var category = modelMapper.map(categoryService.getCategoryById(product.getCategoryId()), Category.class);
         if (category == null) throw new IllegalArgumentException("Category not found");
-
-//        /// Todo get current user login
-//        User currentUser = new User();
-//        currentUser.setUserId(currentSellerId);
 
         // get discount
         List<DiscountAndOffer> discounts;
@@ -184,11 +180,13 @@ public class ProductServiceImpl implements ProductService {
     public void deleteProduct(int productId) {
         var product = productRepo.findById(productId).get();
         if (product == null) throw new IllegalArgumentException("Product not found");
+        if (orderItemRepo.countOrderItemByProductId(productId) > 0)
+            throw new IllegalArgumentException("Product has been sold.");
         productRepo.deleteById(productId);
     }
 
     @Override
-    public List<ProductResponse> filterProduct(String categoryIdsStr, String listSortTypesStr, int minPrice, int maxPrice, String search) {
+    public ProductPaging filterProduct(String categoryIdsStr, String listSortTypesStr, int minPrice, int maxPrice, String search, int pageSize, int page) {
         List<ProductResponse> products;
 
         //get products
@@ -252,8 +250,15 @@ public class ProductServiceImpl implements ProductService {
                 }
             }
         }
+        long totalProducts = products.size();
+        long totalPages =  (long) Math.ceil(totalProducts * 1.0 / pageSize);
 
-        return listMapper.mapList(products, new ProductResponse());
+        products = products.stream().skip(page * pageSize).limit(pageSize).collect(Collectors.toList());
+
+        ProductPaging result = new ProductPaging();
+        result.setTotalPages((int)totalPages);
+        result.setProducts(listMapper.mapList(products, new ProductResponse()));
+        return result;
 
     }
 
@@ -283,6 +288,16 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<ProductResponse> findTop8ByOrderByCreatedDateDesc() {
         return (List<ProductResponse>) listMapper.mapList(productRepo.findTop8ByOrderByCreatedDateDesc(), new ProductResponse());
+    }
+
+    @Override
+    public List<ProductResponse> findTop8ByOrderByQuantityDesc() {
+        return (List<ProductResponse>) listMapper.mapList(productRepo.findTop8ByOrderByInventoryCountDesc(), new ProductResponse());
+    }
+
+    @Override
+    public List<ProductResponse> findTop8ByOrderByDiscounts() {
+        return (List<ProductResponse>) listMapper.mapList(productRepo.findTop8ByOrderByDiscounts(), new ProductResponse());
     }
 }
 

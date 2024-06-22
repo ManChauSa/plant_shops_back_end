@@ -12,8 +12,5 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ReviewProductRespone {
-    Integer productId;
     List<ReviewResponse> reviews;
-    Double ratingAvg;
-
 }

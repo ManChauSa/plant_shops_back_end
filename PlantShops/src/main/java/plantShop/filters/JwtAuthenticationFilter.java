@@ -13,8 +13,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import plantShop.service.JwtService;
-import plantShop.service.UserService;
+import plantShop.service.JwtServiceImpl;
+import plantShop.service.UserServiceImpl;
 
 import java.io.IOException;
 
@@ -24,9 +24,9 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Autowired
-    private JwtService jwtService;
+    private JwtServiceImpl jwtService;
     @Autowired
-    private UserService userService;
+    private UserServiceImpl userService;
 
   @Override
   protected void doFilterInternal(HttpServletRequest request,

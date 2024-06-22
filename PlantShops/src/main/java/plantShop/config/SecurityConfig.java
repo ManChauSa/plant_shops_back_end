@@ -15,7 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import plantShop.filters.JwtAuthenticationFilter;
-import plantShop.service.UserService;
+import plantShop.service.UserServiceImpl;
 
 
 @Configuration
@@ -26,7 +26,7 @@ public class SecurityConfig {
     @Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter;
     @Autowired
-    private UserService userService;
+    private UserServiceImpl userService;
     @Autowired
     private PasswordEncoder passwordEncoder;
 

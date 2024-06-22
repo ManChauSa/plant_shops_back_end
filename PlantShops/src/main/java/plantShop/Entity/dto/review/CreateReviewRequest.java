@@ -11,6 +11,5 @@ import lombok.Setter;
 @NoArgsConstructor
 public class CreateReviewRequest {
      Integer productId;
-     Double rating;
      String reviewText;
 }

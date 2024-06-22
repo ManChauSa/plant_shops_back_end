@@ -19,6 +19,7 @@ public class OrderItem {
     private Integer productId;
     private String productName;
     private Integer quantities;
+    private Double total;
     private String image;
     private LocalDate createdDate;
     private LocalDate updateDate;

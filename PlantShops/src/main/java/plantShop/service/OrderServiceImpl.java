@@ -17,12 +17,8 @@ import plantShop.service.Interface.OrderService;
 import plantShop.service.Interface.PaymentService;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static plantShop.common.constant.PlantShopConstants.currentUserId;
-import static plantShop.common.constant.PlantShopConstants.tenPercentTax;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -49,25 +45,16 @@ public class OrderServiceImpl implements OrderService {
     AddressService addressService;
 
     @Autowired
-    UserService userService;
+    UserServiceImpl userService;
 
     @Autowired
     UserRepo userRepo;
+    @Autowired
+    private ProductRepo productRepo;
 
     @Override
     public void createOrder(CreateOrderRequest order) {
-        User currentUserRef = userService.getCurrentUser();
-        User currentUser = userRepo.findUserByUserName(currentUserRef.getUsername());
-
-        // cal total
-        var subTotal = order.getItems().stream().mapToDouble(OrderItems::getPrice).sum();
-        if(order.getCouponCode() != null){
-            // find coupon percent discount
-            var percent = discountOfferService.getAllDiscountOffers().stream().filter(d->d.getCode().equals(order.getCouponCode())).findFirst().get().getPercent();
-            subTotal = (subTotal * percent)/100;
-        }
-        // cal tax
-        var tax = subTotal* tenPercentTax;
+        User currentUser = userService.getCurrentUser();
 
         // address
         var address = addressService.getAddressByUserId();
@@ -93,9 +80,9 @@ public class OrderServiceImpl implements OrderService {
 
         newOder.setBuyer(currentUser);
         newOder.setCouponCode(order.getCouponCode());
-        newOder.setTax(tax);
-        newOder.setTotal(subTotal+tax);
-        newOder.setShipDate(LocalDate.now());
+        //newOder.setTax(tax);
+        newOder.setTotal(order.getTotal());
+        newOder.setShipDate(LocalDate.now().plusDays(3));
         newOder.setStatus(OrderStatus.ORDERED);
         newOder.setCreatedDate(LocalDate.now());
 
@@ -106,17 +93,27 @@ public class OrderServiceImpl implements OrderService {
             oi.setOrder(newOrder);
             oi.setCreatedDate(LocalDate.now());
             oi.setUpdateDate(LocalDate.now());
+
+            Product product = productRepo.findById(oi.getProductId()).get();
+            if(product != null)
+            {
+                product.setInventoryCount(product.getInventoryCount() - oi.getQuantities());
+                productRepo.save(product);
+            }
         });
 
         orderItemRepo.saveAll(orderItems);
+
+
     }
 
     @Override
-    public void changeOrderStatus(int orderId, OrderStatus orderStatus) {
-        var order = orderRepo.findById(orderId).get();
-        if(order == null) throw new IllegalArgumentException("Order not found");
-
-        order.setStatus(orderStatus);
+    public void changeOrderStatus(int orderId, String status) {
+        var orderOptional = orderRepo.findById(orderId);
+        if(orderOptional.isEmpty())
+            throw new IllegalArgumentException("Order not found");
+        Order order = orderOptional.get();
+        order.setStatus(OrderStatus.valueOf(status));
         order.setUpdateDate(LocalDate.now());
         orderRepo.save(order);
     }
@@ -127,18 +124,36 @@ public class OrderServiceImpl implements OrderService {
         if(order == null) throw new IllegalArgumentException("Order not found");
 
         // Todo get current user login
-        User currentUser = new User();
-        currentUser.setUserId(currentUserId);
+        User currentUser = userService.getCurrentUser();
 
         if(currentUser.getRole() == Role.ROLE_BUYER.toString() && order.getStatus() != OrderStatus.ORDERED){
             throw new IllegalArgumentException("Order is can not cancelled");
         }
-        changeOrderStatus(orderId, OrderStatus.CANCELLED);
+        changeOrderStatus(orderId, OrderStatus.CANCELLED.toString());
     }
 
     @Override
-    public List<OrderResponse> getOrderHistory() {
-        List<OrderResponse> orders =listMapper.mapList(orderRepo.findAll(), new OrderResponse());
+    public List<OrderResponse> getOrderHistory(String status) {
+        List<Order> orderList = orderRepo.findAll();
+        if(status != null)
+        {
+            orderList = orderList.stream().filter(o -> o.getStatus() == OrderStatus.valueOf(status)).collect(Collectors.toList());
+        }
+        List<OrderResponse> orders =listMapper.mapList(orderList, new OrderResponse());
+
+        //Get Current User
+        User currentUser = userService.getCurrentUser();
+
+        if(currentUser.getRole() == Role.ROLE_BUYER.name())
+        {
+            orders = orders.stream().filter(o -> o.getBuyer().getUserId() == currentUser.getUserId()).collect(Collectors.toList());
+        }
+        if(currentUser.getRole() == Role.ROLE_SELLER.name())
+        {
+            List<Integer> productIds = productRepo.findAll().stream().filter(o -> o.getSeller().getUserId() == currentUser.getUserId()).map(o -> o.getProductId()).collect(Collectors.toList());
+            orders = orders.stream().filter(o -> o.getOrderItems().stream().anyMatch(o1 -> productIds.contains(o1.getProductId()))).collect(Collectors.toList());
+        }
+
         orders.forEach(o->{
             o.setOrderItems(getOrderItemByOrderId(o.getOrderId()));
         });

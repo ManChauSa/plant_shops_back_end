@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import plantShop.Entity.dto.product.CreateOrUpdateProductRequest;
+import plantShop.Entity.dto.product.ProductPaging;
 import plantShop.Entity.dto.product.ProductResponse;
 import plantShop.service.Interface.ProductService;
 
@@ -17,16 +18,15 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
-    @GetMapping
-    public List<ProductResponse> getAllProducts(@RequestParam(required = false) String listCategories,
-                                                @RequestParam(required = false) String listSortTypes,
-                                                @RequestParam(required = false) Integer minPrice,
-                                                @RequestParam(required = false) Integer maxPrice,
-                                                @RequestParam(required = false) String search) {
-        if(search != null || listCategories != null || listSortTypes != null) {
-            return productService.filterProduct(listCategories, listSortTypes, minPrice, maxPrice, search);
-        }
-        return productService.getAllProducts();
+    @GetMapping("/{pageSize}/{page}")
+    public ProductPaging getAllProducts(@RequestParam(required = false) String listCategories,
+                                        @RequestParam(required = false) String listSortTypes,
+                                        @RequestParam(required = false) Integer minPrice,
+                                        @RequestParam(required = false) Integer maxPrice,
+                                        @RequestParam(required = false) String search,
+                                        @PathVariable("pageSize") int pageSize,
+                                        @PathVariable("page") int page) {
+        return productService.filterProduct(listCategories, listSortTypes, minPrice, maxPrice, search, pageSize, page);
     }
 
     @GetMapping("/newarrival")
@@ -36,12 +36,12 @@ public class ProductController {
 
     @GetMapping("/trending")
     public List<ProductResponse> getTrandingProducts() {
-        return productService.findTop8ByOrderByCreatedDateDesc();
+        return productService.findTop8ByOrderByQuantityDesc();
     }
 
     @GetMapping("/sale")
     public List<ProductResponse> getSaleProducts() {
-        return productService.findTop8ByOrderByCreatedDateDesc();
+        return productService.findTop8ByOrderByDiscounts();
     }
 
     @PreAuthorize("hasRole('ROLE_SELLER')")

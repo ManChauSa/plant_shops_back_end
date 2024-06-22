@@ -33,6 +33,7 @@ public class User implements UserDetails {
     private String role;
     private LocalDate createdDate;
     private LocalDate updateDate;
+    private Boolean isApproved = false;
 
     public User(String name, String email, String encode, String role) {
         this.name = name;

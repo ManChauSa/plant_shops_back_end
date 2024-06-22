@@ -15,4 +15,5 @@ public class OrderItems {
      Integer quantities;
      String image;
      Double price;
+     Double total;
 }
