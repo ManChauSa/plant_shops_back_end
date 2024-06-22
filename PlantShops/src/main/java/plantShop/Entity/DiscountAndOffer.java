@@ -5,8 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
-import java.util.List;
+import java.time.LocalDate;
 
 
 @Data
@@ -18,12 +17,18 @@ public class DiscountAndOffer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer discountOfferId;
 
+    private String discountName;
     private String description;
     private Double percent;
-    private Date startDate;
-    private Date endDate;
-    private Date createdDate;
-    private Date updateDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
+    private LocalDate createdDate;
+    private LocalDate updateDate;
+    private Short discountType;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User seller;
 
     private String code;
 }

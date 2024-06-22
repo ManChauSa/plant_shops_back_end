@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import plantShop.common.constant.PaymentMethod;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 
 @Data
@@ -24,11 +24,11 @@ public class Payment {
 
     private String cardNumber;
     private PaymentMethod paymentMethod;
-    private Date expirationDate;
+    private String expirationDate;
     private String cvv;
     private String lastName;
     private String firstName;
     private String phoneNumber;
-    private Date createdDate;
-    private Date updateDate;
+    private LocalDate createdDate;
+    private LocalDate updateDate;
 }

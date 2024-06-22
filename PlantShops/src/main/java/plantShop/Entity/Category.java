@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 
 @Data
@@ -19,11 +19,11 @@ public class Category {
 
     private String categoryName;
     private String categoryDesc;
-    private Date createdDate;
-    private Date updateDate;
+    private LocalDate createdDate;
+    private LocalDate updateDate;
 
     @ManyToOne
     @JoinColumn(name = "parentId")
-    private Category parentCategory;
+    public Category parentCategory;
 
 }

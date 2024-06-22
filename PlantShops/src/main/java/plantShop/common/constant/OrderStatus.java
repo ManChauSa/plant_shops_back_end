@@ -1,7 +1,8 @@
 package plantShop.common.constant;
 
 public enum OrderStatus {
-    PENDDING,
+    ORDERED,
+    PENDING,
     SHIPPED,
     DELIVERED,
     CANCELLED,

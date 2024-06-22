@@ -5,7 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
+import java.time.LocalDate;
+import java.util.List;
 
 
 @Data
@@ -17,16 +18,13 @@ public class Cart {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long cartId;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne
-    @JoinColumn(name = "product_id")
-    private Product product;
+    @OneToMany(mappedBy = "orderItemId", cascade = CascadeType.ALL)
+    private List<OrderItem> orderItems;
 
-    private String productName;
-    private int quantity;
-    private Date createdDate;
-    private Date updateDate;
+    private LocalDate createdDate;
+    private LocalDate updateDate;
 }

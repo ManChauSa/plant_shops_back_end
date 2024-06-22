@@ -4,9 +4,10 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import plantShop.common.constant.ProductType;
 import plantShop.common.constant.Status;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 
@@ -36,11 +37,10 @@ public class Product {
     @JoinColumn(name = "category_Id")
     private Category category;
 
-    private Double rating;
-    private String productType;
+    private ProductType productType;
 
-    private Date createdDate;
-    private Date updateDate;
+    private LocalDate createdDate;
+    private LocalDate updateDate;
 
     @ManyToMany
     private List<DiscountAndOffer> discounts;
