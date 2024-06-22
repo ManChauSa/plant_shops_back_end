@@ -14,7 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CreateOrderRequest {
-    List<OrderItems> listOfOrderItems;
+    List<OrderItems> items;
     String couponCode;
     AddressRequest address;
     String imageUrl;

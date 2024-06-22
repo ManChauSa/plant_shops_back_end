@@ -7,6 +7,7 @@ import plantShop.Entity.*;
 import plantShop.Entity.dto.image.ImageResponse;
 import plantShop.Entity.dto.product.CreateOrUpdateProductRequest;
 import plantShop.Entity.dto.product.ProductResponse;
+import plantShop.common.constant.Role;
 import plantShop.common.constant.SortType;
 import plantShop.helper.ListMapper;
 import plantShop.repo.*;
@@ -38,11 +39,13 @@ public class ProductServiceImpl implements ProductService {
     CategoryService categoryService;
     @Autowired
     private ModelMapper modelMapper;
-
+    @Autowired
+    private UserService userService;
     @Autowired
     private ListMapper listMapper;
     @Autowired
     private DiscountOfferRepo discountOfferRepo;
+    private UserRepo userRepo;
 
 
     @Override
@@ -64,9 +67,14 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<ProductResponse> getAllProductsBySellerId(int id) {
+    public List<ProductResponse> getAllProductsBySellerId() {
+
+        User currentUser = userService.getCurrentUser();
+        if(currentUser == null)
+            return new ArrayList<>();
+
         List<ProductResponse> result;
-        result= listMapper.mapList(productRepo.findAll().stream().filter(p->p.getSeller() != null && p.getSeller().getUserId().equals(id)).toList(), new ProductResponse());
+        result= listMapper.mapList(productRepo.findAll().stream().filter(p->p.getSeller() != null && p.getSeller().getUserId().equals(currentUser.getUserId())).toList(), new ProductResponse());
         result.forEach(r->{
             r.setImages(getImagesByProductId(r.getProductId()));
         });
@@ -75,13 +83,20 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public int addProduct(CreateOrUpdateProductRequest product) {
+
+        User currentUser = userService.getCurrentUser();
+        if(currentUser != null)
+        {
+            currentUser = userRepo.findUserByUserName(currentUser.getUsername());
+        }
+
         Product newProduct = new Product();
         var category = modelMapper.map(categoryService.getCategoryById(product.getCategoryId()), Category.class);
         if (category == null) throw new IllegalArgumentException("Category not found");
 
-        /// Todo get current user login
-        User currentUser = new User();
-        currentUser.setUserId(currentSellerId);
+//        /// Todo get current user login
+//        User currentUser = new User();
+//        currentUser.setUserId(currentSellerId);
 
         // get discount
         List<DiscountAndOffer> discounts;
@@ -138,14 +153,14 @@ public class ProductServiceImpl implements ProductService {
 
 
         product.setCategory(category);
-        product.setPrice(product.getPrice());
-        product.setProductName(product.getProductName());
-        product.setDescription(product.getDescription());
-        product.setProductType(product.getProductType());
-        product.setPrice(product.getPrice());
-        product.setInventoryCount(product.getInventoryCount());
-        product.setStatus(product.getStatus());
-        product.setSeller(currentUser);
+        product.setPrice(param.getPrice());
+        product.setProductName(param.getProductName());
+        product.setDescription(param.getDescription());
+        product.setProductType(param.getProductType());
+        product.setPrice(param.getPrice());
+        product.setInventoryCount(param.getInventoryCount());
+        product.setStatus(param.getStatus());
+        //product.setSeller(currentUser);
         product.setUpdateDate(LocalDate.now());
 
         var newProduct = productRepo.save(product);
