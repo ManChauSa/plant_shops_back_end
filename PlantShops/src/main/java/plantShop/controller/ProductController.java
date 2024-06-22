@@ -2,6 +2,7 @@ package plantShop.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import plantShop.Entity.dto.product.CreateOrUpdateProductRequest;
 import plantShop.Entity.dto.product.ProductResponse;
@@ -43,10 +44,11 @@ public class ProductController {
         return productService.findTop8ByOrderByCreatedDateDesc();
     }
 
-    @GetMapping("/seller/{id}")
-    public List<ProductResponse> getAllProductsBySelelr(@PathVariable("id") int id) {
+    @PreAuthorize("hasRole('ROLE_SELLER')")
+    @GetMapping("/seller/products")
+    public List<ProductResponse> getAllProductsBySeller() {
 
-        return productService.getAllProductsBySellerId(id);
+        return productService.getAllProductsBySellerId();
     }
 
     @GetMapping("/{id}")

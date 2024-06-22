@@ -48,15 +48,19 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     AddressService addressService;
 
+    @Autowired
+    UserService userService;
+
+    @Autowired
+    UserRepo userRepo;
 
     @Override
     public void createOrder(CreateOrderRequest order) {
-        // Todo get current user login
-        User currentUser = new User();
-        currentUser.setUserId(currentUserId);
+        User currentUserRef = userService.getCurrentUser();
+        User currentUser = userRepo.findUserByUserName(currentUserRef.getUsername());
 
         // cal total
-        var subTotal = order.getListOfOrderItems().stream().mapToDouble(OrderItems::getPrice).sum();
+        var subTotal = order.getItems().stream().mapToDouble(OrderItems::getPrice).sum();
         if(order.getCouponCode() != null){
             // find coupon percent discount
             var percent = discountOfferService.getAllDiscountOffers().stream().filter(d->d.getCode().equals(order.getCouponCode())).findFirst().get().getPercent();
@@ -97,7 +101,7 @@ public class OrderServiceImpl implements OrderService {
 
         var newOrder = orderRepo.save(newOder);
         //save order items
-        List<OrderItem> orderItems = listMapper.mapList(order.getListOfOrderItems(), new OrderItem());
+        List<OrderItem> orderItems = listMapper.mapList(order.getItems(), new OrderItem());
         orderItems.forEach(oi -> {
             oi.setOrder(newOrder);
             oi.setCreatedDate(LocalDate.now());
